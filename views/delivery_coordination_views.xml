@@ -1,5 +1,36 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
+    <!-- Vista de Vehículos -->
+    <record id="view_delivery_vehicle_form" model="ir.ui.view">
+        <field name="name">delivery.vehicle.form</field>
+        <field name="model">delivery.vehicle</field>
+        <field name="arch" type="xml">
+            <form string="Vehículo">
+                <sheet>
+                    <group>
+                        <field name="name" placeholder="Ej: H2, H3, H4"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_delivery_vehicle_list" model="ir.ui.view">
+        <field name="name">delivery.vehicle.list</field>
+        <field name="model">delivery.vehicle</field>
+        <field name="arch" type="xml">
+            <list string="Vehículos" editable="bottom">
+                <field name="name"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="action_delivery_vehicle" model="ir.actions.act_window">
+        <field name="name">Vehículos</field>
+        <field name="res_model">delivery.vehicle</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
     <!-- Vista Lista -->
     <record id="view_delivery_coordination_list" model="ir.ui.view">
         <field name="name">delivery.coordination.list</field>
@@ -7,15 +38,16 @@
         <field name="arch" type="xml">
             <list string="Entregas">
                 <field name="name"/>
-                <field name="date"/>
+                <field name="request_date"/>
+                <field name="delivery_date"/>
                 <field name="partner_id"/>
-                <field name="truck"/>
+                <field name="delivery_contact_id"/>
+                <field name="vehicle_ids" widget="many2many_tags"/>
                 <field name="state" widget="badge" 
                        decoration-info="state == 'draft'"
                        decoration-warning="state == 'confirmed'"
                        decoration-primary="state == 'in_transit'"
-                       decoration-success="state == 'delivered'"
-                       decoration-danger="state == 'cancelled'"/>
+                       decoration-success="state == 'delivered'"/>
             </list>
         </field>
     </record>
@@ -25,16 +57,20 @@
         <field name="name">delivery.coordination.kanban</field>
         <field name="model">delivery.coordination</field>
         <field name="arch" type="xml">
-            <kanban default_group_by="state" class="o_kanban_small_column">
+            <kanban default_group_by="state">
                 <field name="name"/>
+                <field name="request_date"/>
                 <field name="date"/>
+                <field name="delivery_date"/>
                 <field name="partner_id"/>
-                <field name="truck"/>
+                <field name="delivery_contact_id"/>
+                <field name="technician_ids"/>
+                <field name="vehicle_ids"/>
                 <field name="state"/>
                 <templates>
                     <t t-name="kanban-box">
                         <div class="oe_kanban_global_click">
-                            <div class="o_kanban_record_top">
+                            <div class="o_kanban_record_top mb-2">
                                 <div class="o_kanban_record_headings">
                                     <strong class="o_kanban_record_title">
                                         <field name="name"/>
@@ -42,12 +78,15 @@
                                 </div>
                             </div>
                             <div class="o_kanban_record_body">
-                                <field name="partner_id"/>
-                                <div t-if="record.truck.raw_value">
-                                    🚛 <field name="truck"/>
+                                <div><strong>Cliente:</strong> <field name="partner_id"/></div>
+                                <div><strong>Contacto:</strong> <field name="delivery_contact_id"/></div>
+                                <div><strong>Solicitud:</strong> <field name="request_date"/></div>
+                                <div><strong>Entrega:</strong> <field name="delivery_date"/></div>
+                                <div t-if="record.vehicle_ids.raw_value.length > 0" class="mt-1">
+                                    <strong>Vehículos:</strong> <field name="vehicle_ids" widget="many2many_tags"/>
                                 </div>
-                                <div>
-                                    📅 <field name="date"/>
+                                <div t-if="record.technician_ids.raw_value.length > 0" class="mt-1">
+                                    <strong>Técnicos:</strong> <field name="technician_ids" widget="many2many_tags"/>
                                 </div>
                             </div>
                         </div>
@@ -62,26 +101,80 @@
         <field name="name">delivery.coordination.form</field>
         <field name="model">delivery.coordination</field>
         <field name="arch" type="xml">
-            <form string="Entrega">
+            <form string="Coordinación de Entrega">
                 <header>
                     <field name="state" widget="statusbar" options="{'clickable': '1'}"/>
                 </header>
                 <sheet>
-                    <group>
-                        <group>
+                    <div class="oe_title">
+                        <h1>
                             <field name="name" readonly="1"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group string="Fechas">
+                            <field name="request_date"/>
                             <field name="date"/>
+                            <field name="delivery_date"/>
                         </group>
-                        <group>
+                        <group string="Cliente">
                             <field name="partner_id"/>
-                            <field name="truck"/>
+                            <field name="delivery_contact_id"/>
+                            <field name="delivery_contact_phone"/>
                         </group>
                     </group>
                     <group>
-                        <field name="notes" nolabel="1" placeholder="Notas adicionales..."/>
+                        <field name="delivery_address" placeholder="Dirección completa de entrega..."/>
                     </group>
+                    <group>
+                        <group string="Logística">
+                            <field name="technician_ids" widget="many2many_tags"/>
+                            <field name="vehicle_ids" widget="many2many_tags" options="{'color_field': 'color', 'no_create_edit': True}"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Notas y Detalles" name="notes">
+                            <field name="notes" widget="html" options="{'style-inline': true}" 
+                                   placeholder="Aquí puedes escribir notas, agregar listas, imágenes, tablas, etc."/>
+                        </page>
+                    </notebook>
                 </sheet>
+                <chatter>
+                    <field name="message_follower_ids"/>
+                    <field name="message_ids"/>
+                </chatter>
             </form>
+        </field>
+    </record>
+
+    <!-- Vista de Búsqueda -->
+    <record id="view_delivery_coordination_search" model="ir.ui.view">
+        <field name="name">delivery.coordination.search</field>
+        <field name="model">delivery.coordination</field>
+        <field name="arch" type="xml">
+            <search string="Buscar Entregas">
+                <field name="name"/>
+                <field name="partner_id"/>
+                <field name="delivery_contact_id"/>
+                <field name="technician_ids"/>
+                <field name="vehicle_ids"/>
+                <separator/>
+                <filter string="Borrador" name="draft" domain="[('state','=','draft')]"/>
+                <filter string="Confirmado" name="confirmed" domain="[('state','=','confirmed')]"/>
+                <filter string="En Tránsito" name="in_transit" domain="[('state','=','in_transit')]"/>
+                <filter string="Entregado" name="delivered" domain="[('state','=','delivered')]"/>
+                <separator/>
+                <filter string="Entregas de Hoy" name="today" 
+                        domain="[('delivery_date','=',context_today().strftime('%Y-%m-%d'))]"/>
+                <filter string="Entregas Esta Semana" name="this_week" 
+                        domain="[('delivery_date','&gt;=', (context_today()-datetime.timedelta(days=context_today().weekday())).strftime('%Y-%m-%d')),
+                                 ('delivery_date','&lt;=', (context_today()+datetime.timedelta(days=6-context_today().weekday())).strftime('%Y-%m-%d'))]"/>
+                <group expand="0" string="Agrupar Por">
+                    <filter string="Cliente" name="group_partner" context="{'group_by':'partner_id'}"/>
+                    <filter string="Estado" name="group_state" context="{'group_by':'state'}"/>
+                    <filter string="Fecha de Entrega" name="group_delivery_date" context="{'group_by':'delivery_date'}"/>
+                </group>
+            </search>
         </field>
     </record>
 
@@ -93,34 +186,13 @@
         <field name="context">{'search_default_draft': 1, 'search_default_confirmed': 1, 'search_default_in_transit': 1}</field>
     </record>
 
-    <!-- Vista de Búsqueda (Search) -->
-    <record id="view_delivery_coordination_search" model="ir.ui.view">
-        <field name="name">delivery.coordination.search</field>
-        <field name="model">delivery.coordination</field>
-        <field name="arch" type="xml">
-            <search string="Buscar Entregas">
-                <field name="name" string="Referencia"/>
-                <field name="partner_id" string="Cliente"/>
-                <field name="truck" string="Camión"/>
-                <separator/>
-                <filter string="Borrador" name="draft" domain="[('state','=','draft')]"/>
-                <filter string="Confirmado" name="confirmed" domain="[('state','=','confirmed')]"/>
-                <filter string="En Tránsito" name="in_transit" domain="[('state','=','in_transit')]"/>
-                <filter string="Entregado" name="delivered" domain="[('state','=','delivered')]"/>
-                <filter string="Cancelado" name="cancelled" domain="[('state','=','cancelled')]"/>
-                <separator/>
-                <filter string="Hoy" name="today" domain="[('date','=',context_today().strftime('%Y-%m-%d'))]"/>
-                <group expand="0" string="Agrupar Por">
-                    <filter string="Cliente" name="group_partner" context="{'group_by':'partner_id'}"/>
-                    <filter string="Estado" name="group_state" context="{'group_by':'state'}"/>
-                    <filter string="Fecha" name="group_date" context="{'group_by':'date'}"/>
-                </group>
-            </search>
-        </field>
-    </record>
-
-    <!-- Menú -->
+    <!-- Menús -->
     <menuitem id="menu_delivery_root" name="Logistica Helaco" sequence="10"/>
-    <menuitem id="menu_delivery_coordination" name="Coordinaciones" parent="menu_delivery_root" action="action_delivery_coordination" sequence="10"/>
+    
+    <menuitem id="menu_delivery_coordination_main" name="Coordinaciones" parent="menu_delivery_root" sequence="10"/>
+    <menuitem id="menu_delivery_coordination" name="Todas las Entregas" parent="menu_delivery_coordination_main" action="action_delivery_coordination" sequence="10"/>
+    
+    <menuitem id="menu_delivery_config" name="Configuración" parent="menu_delivery_root" sequence="100"/>
+    <menuitem id="menu_delivery_vehicle" name="Vehículos" parent="menu_delivery_config" action="action_delivery_vehicle" sequence="10"/>
 
 </odoo>

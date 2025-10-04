@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
 {
     'name': "Delivery Coordination",
-    'summary': "Gestión básica de entregas",
-    'description': "Módulo simple para coordinar entregas",
-    'author': "Base64Dominicana",
+    'summary': "Gestión de entregas logísticas",
+    'description': "Módulo para coordinar entregas con técnicos y seguimiento",
+    'author': "Tu Empresa",
     'category': 'Operations',
     'version': '18.0.1.0.0',
-    'depends': ['base'],
+    'depends': ['base', 'mail'],
     'data': [
         'security/ir.model.access.csv',
         'data/delivery_sequence.xml',

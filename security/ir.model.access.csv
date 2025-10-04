@@ -1,2 +1,3 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
 access_delivery_coordination_all,delivery.coordination.all,model_delivery_coordination,,1,1,1,1
+access_delivery_vehicle_all,delivery.vehicle.all,model_delivery_vehicle,,1,1,1,1
