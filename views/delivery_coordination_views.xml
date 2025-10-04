@@ -8,7 +8,7 @@
             <form string="Vehículo">
                 <sheet>
                     <group>
-                        <field name="name" placeholder="Ej: H2, H3, H4"/>
+                        <field name="name" placeholder="Ej: H1, H2, H3, H4"/>
                     </group>
                 </sheet>
             </form>
@@ -38,6 +38,7 @@
         <field name="arch" type="xml">
             <list string="Entregas">
                 <field name="name"/>
+                <field name="salesperson_id"/>
                 <field name="request_date"/>
                 <field name="delivery_date"/>
                 <field name="partner_id"/>
@@ -59,6 +60,7 @@
         <field name="arch" type="xml">
             <kanban default_group_by="state">
                 <field name="name"/>
+                <field name="salesperson_id"/>
                 <field name="request_date"/>
                 <field name="date"/>
                 <field name="delivery_date"/>
@@ -78,6 +80,7 @@
                                 </div>
                             </div>
                             <div class="o_kanban_record_body">
+                                <div><strong>Vendedor:</strong> <field name="salesperson_id"/></div>
                                 <div><strong>Cliente:</strong> <field name="partner_id"/></div>
                                 <div><strong>Contacto:</strong> <field name="delivery_contact_id"/></div>
                                 <div><strong>Solicitud:</strong> <field name="request_date"/></div>
@@ -117,8 +120,13 @@
                             <field name="date"/>
                             <field name="delivery_date"/>
                         </group>
-                        <group string="Cliente">
+                        <group string="Información Comercial">
+                            <field name="salesperson_id"/>
                             <field name="partner_id"/>
+                        </group>
+                    </group>
+                    <group>
+                        <group string="Contacto de Entrega">
                             <field name="delivery_contact_id"/>
                             <field name="delivery_contact_phone"/>
                         </group>
@@ -129,7 +137,7 @@
                     <group>
                         <group string="Logística">
                             <field name="technician_ids" widget="many2many_tags"/>
-                            <field name="vehicle_ids" widget="many2many_tags" options="{'color_field': 'color', 'no_create_edit': True}"/>
+                            <field name="vehicle_ids" widget="many2many_tags" options="{'color_field': 'color'}" context="{'create': True}"/>
                         </group>
                     </group>
                     <notebook>
@@ -154,6 +162,7 @@
         <field name="arch" type="xml">
             <search string="Buscar Entregas">
                 <field name="name"/>
+                <field name="salesperson_id"/>
                 <field name="partner_id"/>
                 <field name="delivery_contact_id"/>
                 <field name="technician_ids"/>
@@ -170,6 +179,7 @@
                         domain="[('delivery_date','&gt;=', (context_today()-datetime.timedelta(days=context_today().weekday())).strftime('%Y-%m-%d')),
                                  ('delivery_date','&lt;=', (context_today()+datetime.timedelta(days=6-context_today().weekday())).strftime('%Y-%m-%d'))]"/>
                 <group expand="0" string="Agrupar Por">
+                    <filter string="Vendedor" name="group_salesperson" context="{'group_by':'salesperson_id'}"/>
                     <filter string="Cliente" name="group_partner" context="{'group_by':'partner_id'}"/>
                     <filter string="Estado" name="group_state" context="{'group_by':'state'}"/>
                     <filter string="Fecha de Entrega" name="group_delivery_date" context="{'group_by':'delivery_date'}"/>

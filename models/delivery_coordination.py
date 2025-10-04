@@ -28,6 +28,9 @@ class DeliveryCoordination(models.Model):
         required=True,
         help='Fecha programada para la entrega'
     )
+
+    # Vendedor
+    salesperson_id = fields.Many2one('res.partner',string='Vendedor',help='Vendedor que envió la coordinación')
     
     # Cliente
     partner_id = fields.Many2one('res.partner', string='Cliente', required=True)
