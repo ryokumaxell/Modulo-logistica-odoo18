@@ -1,0 +1,67 @@
+# Python
+*.py[co]
+*.py~
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.python-version
+
+# Odoo
+*.log
+*.pot
+*.mo
+*.bak
+*.sqlite
+
+# Environment
+.env
+.venv
+env/
+venv/
+ENV/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Build/Installation
+*.egg-info/
+*.egg
+build/
+dist/
+
+# Database
+*.db
+*.sql
+*.sql.gz
+
+# Temp files
+*.swp
+*.swo
+*~
+
+# Logs
+*.log
+
+# Odoo session and filestore
+/filestore/
+/sessions/
+/gevent/
+
+# Local development
+.odoo_env
+.odoorc
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db

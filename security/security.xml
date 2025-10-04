@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Crear categoría personalizada -->
+    <record id="module_category_logistics" model="ir.module.category">
+        <field name="name">Logística</field>
+        <field name="sequence">20</field>
+    </record>
+
+    <!-- Usar tu categoría -->
+    <record id="delivery_coordination_group_user" model="res.groups">
+        <field name="name">Usuario de Entregas</field>
+        <field name="category_id" ref="module_category_logistics"/>
+    </record>
+
+    <record id="delivery_coordination_group_manager" model="res.groups">
+        <field name="name">Administrador de Entregas</field>
+        <field name="category_id" ref="module_category_logistics"/>
+        <field name="implied_ids" eval="[(4, ref('delivery_coordination_group_user'))]"/>
+    </record>
+</odoo>

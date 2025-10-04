@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <menuitem id="menu_delivery_coordination_root" 
+              name="Delivery Coordination" 
+              sequence="10"
+              web_icon="delivery_coordination_logistics,static/description/icon.png"/>
+
+    <menuitem id="menu_delivery_coordination" 
+              name="Deliveries" 
+              parent="menu_delivery_coordination_root"
+              action="action_delivery_coordination"
+              sequence="10"/>
+
+    <menuitem id="menu_delivery_coordination_configuration" 
+              name="Configuration" 
+              parent="menu_delivery_coordination_root"
+              sequence="100"/>
+
+    <record id="action_delivery_coordination" model="ir.actions.act_window">
+        <field name="name">Delivery Coordinations</field>
+        <field name="res_model">delivery.coordination</field>
+        <field name="view_mode">tree,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create your first delivery coordination
+            </p>
+        </field>
+    </record>
+</odoo>
